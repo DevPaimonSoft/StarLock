@@ -1,0 +1,98 @@
+#     = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+#     =                     StarLock LTD                        =
+#     =            StarLock - New Modern Protection             =
+#     =                   Version: 0.1-BETA                     =
+#     = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+#     =                       Authors                           =
+#     =   YoungSmoke - This is a crazy man (in a good way)
+#     =   Paimon - The Quite depressing author of this Wonder
+#     = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+#
+#  Modes -> [ Normal, Medium, Heavy, Ultra ]
+#  Dictionary -> [Default, Invisible, IiIiI, Split]
+#
+StringEncryption:
+  Enabled: true
+  Mode: Heavy
+  Exclusions:
+    - "Abobus"
+
+PoolTransformer:
+  String: false
+  Number: true
+
+InvokeDynamic:
+  Enabled: true
+  Mode: Heavy
+
+NumberObfuscation:
+  Enabled: true
+  Mode: Heavy
+  LineNumbers:
+    Enabled: true
+    Remove: true
+
+FlowObfuscation:
+  Enabled: true
+  Mode: Normal
+
+NativeObfuscation:
+  Enabled: true
+  MinecraftPlugin: false
+  Auth: true
+  Checksum: true
+
+
+Miscellaneous:
+  ClassEncryptor: true # Basic encryption, but dumping with hook DefineClass
+  TrashClasses: 2 # 0 - no add trash classes
+  Shuffler: true # Shake methods/fields in class
+  Crasher: true # Make reversing a try hard
+  HideCode: true # Basic hide code on Jdax
+  Source: # Debug info
+    Enabled: true
+    Remove: true
+
+Renamer:
+  Enabled: false
+  Repackage: "su4ka" # Set %false% if u dont wont for repackage
+  Path:
+    - "ru.youngsmoke.*"
+  AdaptResources:
+    - "META-INF/MANIFEST.MF"
+    - "Example.resource"
+  LocalVariables:
+    Enabled: true
+    Remove: false
+
+Optimizer:
+  Enabled: true
+  InlineGotoGoto: true
+  InlineGotoReturn: true
+  RemoveNopInstructions: true
+
+Shrinker:
+  Enabled: true
+  RemoveAttributes: true
+  RemoveDebug: true
+  RemoveInvisibleAnnotations: true
+  RemoveVisibleAnnotations: true
+
+Watermark:
+  Enabled: true
+  META-INF: false
+  Messages:
+    - "\n<\\ StarLock: New Modern Protection."
+    - " || Web: github.com/DevPaimonSoft/StarLock"
+    - " || Discord: github.com/DevPaimonSoft"
+    - "<// Protected: StarLock LTD\n"
+  MetaInfMsg:
+    - "StarLock: New Modern Protection"
+    - "Web: github.com/DevPaimonSoft/StarLock"
+    - "Author: github.com/DevPaimonSoft"
+    - "Protected: StarLock LTD"
+
+Settings:
+  Dictionary: Invdisible
+  Path: # path to obfuscate, set * for obfuscate all sources
+    - "ru.youngsmoke.*"
