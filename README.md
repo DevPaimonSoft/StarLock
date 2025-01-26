@@ -16,6 +16,12 @@ StarLock is a sophisticated tool created to enhance the security of your Java co
 - **Flexible Configuration**: Tailor the obfuscation process to your project's needs.  
 - **User-Friendly Interface**: Effortlessly protect your Java projects with an intuitive experience.
 
+## 🔄 Future Updates
+
+New features will be added with each new version.
+
+You can learn about future features based on the obfuscator configuration.
+
 ---
 
 ## 🚀 Getting Started
