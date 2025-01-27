@@ -24,12 +24,25 @@ import java.util.stream.IntStream;
 
 public class Utils extends ConfigManager {
     private static final String Dict;
+    private static final String DictMode;
     static {
         switch (getConfig().getString("Settings.Dictionary")){
-            case "IiIiI" -> Dict = DictonaryManager.IiIiI;
-            case "Invisible" -> Dict = DictonaryManager.IiIiI;
-            case "Split" -> Dict = DictonaryManager.IiIiI;
-            default -> Dict = DictonaryManager.Default;
+            case "IiIiI" -> {
+                DictMode = "IiIiI";
+                Dict = DictonaryManager.IiIiI;
+            }
+            case "Invisible" -> {
+                DictMode = "Invisible";
+                Dict = DictonaryManager.INVISIBLE;
+            }
+            case "Split" -> {
+                DictMode = "Split";
+                Dict = DictonaryManager.SPLIT;
+            }
+            default -> {
+                DictMode = "Default";
+                Dict = DictonaryManager.Default;
+            }
         }
     }
     public static String randomString(int length) {
@@ -53,12 +66,39 @@ public class Utils extends ConfigManager {
         }
         return new String(s.toString().getBytes(StandardCharsets.UTF_8));
     }
+    public static String getRandomName(int length, int repeat) {
+        String dict;
+        if (DictMode.equals("Split")) dict = DictonaryManager.INVISIBLE;
+        else dict = Dict;
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i < repeat; i++) {
+            s.append(IntStream.range(0, length)
+                    .mapToObj(ii -> Character.toString(dict.charAt((new Random()).nextInt(1999999999) % dict.length())))
+                    .collect(Collectors.joining()));
+        }
+        return new String(s.toString().getBytes(StandardCharsets.UTF_8));
+    }
     public static String getRandomString(int length) {
         StringBuilder s = new StringBuilder();
         s.append(IntStream.range(0, length)
                 .mapToObj(ii -> Character.toString(Dict.charAt((new Random()).nextInt(1999999999) % Dict.length())))
                 .collect(Collectors.joining()));
         return new String(s.toString().getBytes(StandardCharsets.UTF_8));
+    }
+    public static String getUnicodeString(int length) {
+        Random random = new Random();
+        StringBuilder stringBuilder = new StringBuilder(length);
+
+        for (int i = 0; i < length; i++) {
+            int codePoint;
+            do {
+                codePoint = random.nextInt(0xFFFF + 1);
+            } while (Character.isSurrogate((char) codePoint));
+
+            stringBuilder.append((char) codePoint);
+        }
+
+        return stringBuilder.toString();
     }
     private static String getTimestamp(){
         ZoneId moscowZoneId = ZoneId.of("Europe/Moscow");

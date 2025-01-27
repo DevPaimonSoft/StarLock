@@ -93,6 +93,6 @@ Watermark:
     - "Protected: StarLock LTD"
 
 Settings:
-  Dictionary: Invdisible
+  Dictionary: "Split"
   Path: # path to obfuscate, set * for obfuscate all sources
     - "ru.youngsmoke.*"

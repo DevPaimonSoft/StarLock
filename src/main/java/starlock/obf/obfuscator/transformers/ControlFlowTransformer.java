@@ -11,7 +11,7 @@ public class ControlFlowTransformer extends Transformer {
         switch (getConfig().getString("FlowObfuscation.Mode")){
             case "Normal" -> new LightControlFlowTransformer().obfuscate(obfuscator);
             case "Medium" -> new NormalControlFlowTransformer().obfuscate(obfuscator);
-            case "Heavy" -> new LightControlFlowTransformer().obfuscate(obfuscator);
+            case "Heavy" -> new NormalControlFlowTransformer().obfuscate(obfuscator);
             default -> throw new IllegalArgumentException();
         }
     }

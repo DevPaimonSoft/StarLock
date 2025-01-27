@@ -33,12 +33,7 @@ public class Main extends FileManager implements StarLockManager {
                 setOutputFile(new File(cmd.getOptionValue("output")));
             } else throw new RuntimeException("Output has null!");
 
-            if(cmd.hasOption("config")) {
-                loadCFG(cmd.getOptionValue("config"));
-            } else {
-                if(!new File("config.yml").exists()) saveCFG();
-                loadCFG("config.yml");
-            }
+            if(cmd.hasOption("config")) loadCFG(cmd.getOptionValue("config"));
 
         } catch (ParseException e) {
             System.err.println("Cannot parse command line.");

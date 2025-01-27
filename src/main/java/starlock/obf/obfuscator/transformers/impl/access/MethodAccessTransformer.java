@@ -7,7 +7,9 @@ import starlock.obf.obfuscator.transformers.AccessTransformer;
 
 public class MethodAccessTransformer extends AccessTransformer {
     public void obfuscate(Obfuscator obfuscator){
-        obfuscator.getClasses().forEach(classNode -> {
+        obfuscator.getClasses().stream()
+                .filter(classNode -> !isAccess(classNode.access, ACC_INTERFACE))
+                .forEach(classNode -> {
             classNode.methods.forEach(methodNode -> {
                 classNode.methods.forEach(method -> {
                     if (!method.name.equals("<init>") && !method.name.equals("<clinit>")) {

@@ -13,38 +13,50 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class NumberPoolTransformer extends PoolTransformer {
     private static String poolKey;
     public void obfuscate(Obfuscator obfuscator){
-        obfuscator.getClasses().forEach(classNode -> {
-            poolKey = NumberPoolTransformer.getRandomString(new Random().nextInt(128));
+        obfuscator.getClasses().stream()
+                .filter(classNode -> !isAccess(classNode.access, ACC_INTERFACE) && !isAccess(classNode.access, ACC_ENUM))
+                .forEach(classNode -> {
+            poolKey = NumberPoolTransformer.getUnicodeString(new Random().nextInt(128));
             FieldNode field = new FieldNode(ACC_PRIVATE+ACC_STATIC+ACC_SYNTHETIC, NumberPoolTransformer.getRandomString(new Random().nextInt(256)),"Ljava/lang/String;",null, null);
             FieldNode fieldPool = new FieldNode(ACC_PRIVATE+ACC_STATIC+ACC_SYNTHETIC, NumberPoolTransformer.getRandomString(new Random().nextInt(256)),"[Ljava/lang/String;",null, null);
             final String[] toEncrypt = {""};
-            AtomicInteger countStr = new AtomicInteger();
-            AtomicBoolean cpool = new AtomicBoolean(true);
-            classNode.methods.stream()
-                    .filter(methodNode -> !methodNode.name.equals("<init>"))
-                    .filter(methodNode -> !methodNode.name.equals("<clinit>"))
-                    .filter(methodNode -> isAccess(methodNode.access, ACC_STATIC))
-                    .forEach(methodNode -> {
-                        cpool.set(true);
-                        Arrays.stream(methodNode.instructions.toArray())
-                                .filter(ASMHelper::isNumber)
-                                .forEach(insn -> {
-                                    toEncrypt[0] += getNumber(insn)+"<uwu>";
 
-                                    InsnList list = new InsnList();
-                                    list.add(new FieldInsnNode(GETSTATIC, classNode.name, fieldPool.name, fieldPool.desc));
-                                    list.add(new LdcInsnNode(countStr.getAndIncrement()));
-                                    list.add(new InsnNode(AALOAD));
-                                    if(isInteger(insn)) list.add(new MethodInsnNode(INVOKESTATIC,"java/lang/Integer","parseInt","(Ljava/lang/String;)I"));
-                                    if(isLong(insn)) list.add(new MethodInsnNode(INVOKESTATIC,"java/lang/Long","parseLong","(Ljava/lang/String;)J"));
-                                    if(isFloat(insn)) list.add(new MethodInsnNode(INVOKESTATIC,"java/lang/Float","parseFloat","(Ljava/lang/String;)F"));
-                                    if(isDouble(insn)) list.add(new MethodInsnNode(INVOKESTATIC,"java/lang/Double","parseDouble","(Ljava/lang/String;)D"));
-                                    methodNode.instructions.insert(insn, list);
-                                    methodNode.instructions.remove(insn);
-                                });
-                    });
+            MethodNode clinit = getClinit(classNode);
+
+
+            AtomicInteger countStr = new AtomicInteger();
+            AtomicBoolean cpool = new AtomicBoolean(false);
+            if(clinit != null){
+                classNode.methods.stream()
+                        .filter(methodNode -> !methodNode.name.equals("<init>"))
+                        .filter(methodNode -> !methodNode.name.equals("<clinit>"))
+                        .filter(methodNode -> isAccess(methodNode.access, ACC_STATIC))
+                        .forEach(methodNode -> {
+                            cpool.set(true);
+                            Arrays.stream(methodNode.instructions.toArray())
+                                    .filter(ASMHelper::isNumber)
+                                    .forEach(insn -> {
+                                        toEncrypt[0] += getNumber(insn)+"<uwu>";
+
+                                        InsnList list = new InsnList();
+                                        list.add(new FieldInsnNode(GETSTATIC, classNode.name, fieldPool.name, fieldPool.desc));
+                                        list.add(new LdcInsnNode(countStr.getAndIncrement()));
+                                        list.add(new InsnNode(AALOAD));
+                                        if(isInteger(insn)) list.add(new MethodInsnNode(INVOKESTATIC,"java/lang/Integer","parseInt","(Ljava/lang/String;)I"));
+                                        if(isLong(insn)) list.add(new MethodInsnNode(INVOKESTATIC,"java/lang/Long","parseLong","(Ljava/lang/String;)J"));
+                                        if(isFloat(insn)) list.add(new MethodInsnNode(INVOKESTATIC,"java/lang/Float","parseFloat","(Ljava/lang/String;)F"));
+                                        if(isDouble(insn)) list.add(new MethodInsnNode(INVOKESTATIC,"java/lang/Double","parseDouble","(Ljava/lang/String;)D"));
+                                        methodNode.instructions.insert(insn, list);
+                                        methodNode.instructions.remove(insn);
+                                    });
+                        });
+            }
             if(cpool.get()){
                 int key1 = new Random().nextInt(), key2 = new Random().nextInt();
+
+                if(poolKey.isEmpty())
+                    poolKey = NumberPoolTransformer.getUnicodeString(key1);
+
                 String enc = encryptPool(toEncrypt[0], poolKey, key1, key2);
                 InsnList list = new InsnList();
 
@@ -61,22 +73,13 @@ public class NumberPoolTransformer extends PoolTransformer {
                 list.add(new LdcInsnNode("<uwu>"));
                 list.add(new MethodInsnNode(INVOKEVIRTUAL, "java/lang/String", "split", "(Ljava/lang/String;)[Ljava/lang/String;"));
                 list.add(new FieldInsnNode(PUTSTATIC, classNode.name, fieldPool.name, fieldPool.desc));
-
-                MethodNode clinit = getClinit(classNode);
-                clinit.instructions.insert(clinit.instructions.get(0),list);
+                clinit.instructions.insert(clinit.instructions.getFirst(),list);
             }
 
         });
     }
     private static MethodNode getClinit(ClassNode classNode){
-        MethodNode methodNode = classNode.methods.stream().filter(methodNode1 -> methodNode1.name.equals("<clinit>")).findFirst().orElse(null);
-        if(methodNode == null){
-            methodNode = new MethodNode(ACC_STATIC, "<clinit>", "()V", null, null);;
-            InsnList list = new InsnList();
-            list.add(new InsnNode(RETURN));
-            methodNode.instructions = list;
-        }
-        return methodNode;
+        return classNode.methods.stream().filter(methodNode1 -> methodNode1.name.equals("<clinit>")).findFirst().orElse(null);
     }
     public String decryptPool(String var0, String varKeys, int var3, int key) {
         char[] var1 = var0.toCharArray();

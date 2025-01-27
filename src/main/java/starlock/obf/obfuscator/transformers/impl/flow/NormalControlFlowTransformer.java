@@ -12,7 +12,9 @@ import static starlock.obf.utils.FlowUtils.*;
 public class NormalControlFlowTransformer extends ControlFlowTransformer {
     public void obfuscate(Obfuscator obfuscator) {
         new LightControlFlowTransformer().obfuscate(obfuscator);
-        obfuscator.getClasses().forEach(classNode -> {
+        obfuscator.getClasses().stream()
+                .filter(classNode -> !isAccess(classNode.access, ACC_INTERFACE))
+                .forEach(classNode -> {
             final int[] i = {1};
             final long[] key = {new Random().nextLong()};
             final int[] key2 = {new Random().nextInt()};

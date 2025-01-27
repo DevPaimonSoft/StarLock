@@ -13,7 +13,9 @@ import static starlock.obf.utils.FlowUtils.*;
 public class LightControlFlowTransformer extends ControlFlowTransformer {
 
     public void obfuscate(Obfuscator obfuscator) {
-        obfuscator.getClasses().forEach(classNode -> {
+        obfuscator.getClasses().stream()
+                .filter(classNode -> !isAccess(classNode.access, ACC_INTERFACE))
+                .forEach(classNode -> {
             classNode.methods.stream()
                     .filter(methodNode -> !methodNode.name.equals("<init>"))
                     .filter(methodNode -> !methodNode.name.equals("<clinit>"))

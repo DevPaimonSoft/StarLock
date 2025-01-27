@@ -26,4 +26,8 @@ public class ConfigManager {
             throw new RuntimeException(e);
         }
     }
+    static {
+        if(!new File("config.yml").exists()) saveCFG();
+        loadCFG("config.yml");
+    }
 }

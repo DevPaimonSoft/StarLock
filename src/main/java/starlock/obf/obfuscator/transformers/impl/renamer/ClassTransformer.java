@@ -23,10 +23,10 @@ public class ClassTransformer extends RenamerTransformer {
         obfuscator.getClasses().forEach(remapper::loadClass);
 
         obfuscator.getClasses().forEach(classNode -> {
-            classNode.sourceFile = getRandomString(new Random().nextInt(30, 100), new Random().nextInt(1, 3));
-            classNode.sourceDebug = getRandomString(new Random().nextInt(30, 100), new Random().nextInt(1, 3));
+            classNode.sourceFile = getRandomName(new Random().nextInt(30, 100), new Random().nextInt(1, 3));
+            classNode.sourceDebug = getRandomName(new Random().nextInt(30, 100), new Random().nextInt(1, 3));
 
-            String newName = getRandomString(new Random().nextInt(30, 100), new Random().nextInt(1, 3));
+            String newName = getRandomName(new Random().nextInt(30, 100), new Random().nextInt(1, 3));
             String newPackage = getConfig().getString("Renamer.Repackage");
             String oldPackage = getPackage(classNode.name);
             String fullNewName = oldPackage + "/" + newName;

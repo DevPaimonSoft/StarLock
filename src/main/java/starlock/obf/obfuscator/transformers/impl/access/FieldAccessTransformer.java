@@ -6,7 +6,9 @@ import starlock.obf.obfuscator.transformers.AccessTransformer;
 
 public class FieldAccessTransformer extends AccessTransformer {
     public void obfuscate(Obfuscator obfuscator){
-        obfuscator.getClasses().forEach(classNode -> {
+        obfuscator.getClasses().stream()
+                .filter(classNode -> !isAccess(classNode.access, ACC_INTERFACE))
+                .forEach(classNode -> {
             classNode.methods.forEach(methodNode -> {
                 classNode.fields.forEach(field -> {
                     field.access &= ~(Opcodes.ACC_PRIVATE | Opcodes.ACC_PROTECTED);

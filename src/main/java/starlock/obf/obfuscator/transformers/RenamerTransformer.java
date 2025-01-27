@@ -9,6 +9,6 @@ public class RenamerTransformer extends Transformer {
     @Override
     public void transform(Obfuscator obfuscator) {
         new LocalVaribleTransformer().obfuscate(obfuscator);
-        new ClassTransformer().obfuscate(obfuscator);
+        //new ClassTransformer().obfuscate(obfuscator);
     }
 }

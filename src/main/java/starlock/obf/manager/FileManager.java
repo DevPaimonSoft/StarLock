@@ -8,7 +8,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import starlock.obf.Main;
 import starlock.obf.obfuscator.transformers.impl.number.HeavyNumberTransformer;
-import starlock.obf.obfuscator.transformers.impl.ref.HeavyInvokeDynamic;
 import starlock.obf.obfuscator.transformers.impl.string.HeavyStringTransformer;
 import starlock.obf.utils.ASMHelper;
 import starlock.obf.utils.Utils;
@@ -23,7 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -94,7 +92,7 @@ public class FileManager extends Utils {
         try (ZipOutputStream zipFile = new ZipOutputStream(new FileOutputStream(outputFile))) {
             System.gc();
 
-            String mainClass = "pizda_Ch0my";
+            String mainClass = "starlock/Main";
             try {
                 mainClass = getMainManifest();
             } catch (Exception e) {}
@@ -132,38 +130,35 @@ public class FileManager extends Utils {
             });
 
 
-            String[] starClasses = {"../StarLock.class", "../StarMain.class", "../StarService.class", "../StarUtils.class"};
 
             //TODO: save lib and replace values
-            for (String starClass : starClasses) {
-                InputStream stream = Main.class.getResourceAsStream(starClass);
-                ClassNode classNode = new ClassNode(Opcodes.ASM9);
-                ClassReader reader = new ClassReader(stream);
-                reader.accept(classNode, Opcodes.ASM9);
+            InputStream stream = Main.class.getResourceAsStream("../StarLock.class");
+            ClassNode classNode = new ClassNode(Opcodes.ASM9);
+            ClassReader reader = new ClassReader(stream);
+            reader.accept(classNode, Opcodes.ASM9);
 
-                classNode.methods.forEach(methodNode -> {
-                    Arrays.stream(methodNode.instructions.toArray())
-                            .forEach(insn -> {
-                                if (ASMHelper.isInteger(insn) && ASMHelper.getInteger(insn) == 1122331334) {
-                                    methodNode.instructions.set(insn, new LdcInsnNode(HeavyNumberTransformer.key));
-                                } else if (ASMHelper.isInteger(insn) && ASMHelper.getInteger(insn) == 345345777) {
-                                    methodNode.instructions.set(insn, new LdcInsnNode(HeavyStringTransformer.key2));
-                                } else if (ASMHelper.isString(insn) && ASMHelper.getString(insn).equals("SPLITSTRING")) {
-                                    methodNode.instructions.set(insn, new LdcInsnNode(HeavyInvokeDynamic.spliter));
-                                }
-                            });
-                    if (methodNode.invisibleAnnotations == null) {
-                        methodNode.invisibleAnnotations = new ArrayList<>();
-                    }
-                    methodNode.localVariables = null;
-                    methodNode.invisibleAnnotations.add(new AnnotationNode("starlock.StarLock(NativeTransformer)"));
-                    //methodNode.invisibleAnnotations.contains(new AnnotationNode("starlock.StarLock(NativeTransformer)"));
-                });
+            classNode.methods.forEach(methodNode -> {
+                Arrays.stream(methodNode.instructions.toArray())
+                        .forEach(insn -> {
+                            if (ASMHelper.isInteger(insn) && ASMHelper.getInteger(insn) == 1122331334) {
+                                methodNode.instructions.set(insn, new LdcInsnNode(HeavyNumberTransformer.key));
+                            } else if (ASMHelper.isInteger(insn) && ASMHelper.getInteger(insn) == 345345777) {
+                                methodNode.instructions.set(insn, new LdcInsnNode(HeavyStringTransformer.key2));
+                            } else if (ASMHelper.isString(insn) && ASMHelper.getString(insn).equals("SPLITSTRING")) {
+                                methodNode.instructions.set(insn, new LdcInsnNode("nullptr"));
+                            }
+                        });
+                if (methodNode.invisibleAnnotations == null) {
+                    methodNode.invisibleAnnotations = new ArrayList<>();
+                }
+                methodNode.localVariables = null;
+                //methodNode.invisibleAnnotations.add(new AnnotationNode("starlock.StarLock(NativeTransformer)"));
+            });
 
-                zipFile.putNextEntry(new ZipEntry(classNode.name + ".class"));
-                zipFile.write(classToBytes(classNode));
-                zipFile.closeEntry();
-            }
+            zipFile.putNextEntry(new ZipEntry(classNode.name + ".class"));
+            zipFile.write(classToBytes(classNode));
+            zipFile.closeEntry();
+
 
             System.gc();
         } catch (IOException e) {
