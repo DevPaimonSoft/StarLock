@@ -261,6 +261,14 @@ public class ASMHelper extends Main implements Opcodes {
                 .filter(methodNode -> methodNode.desc.equals(methodInsnNode.desc))
                 .findFirst();
     }
+    public static MethodNode getMethod(ClassNode classNode, String name){
+        return classNode.methods.stream().filter(methodNode1 -> methodNode1.name.equals(name)).findFirst().orElse(null);
+    }
+    public static MethodNode getMethod(ClassNode classNode, String name, String desc){
+        return classNode.methods.stream()
+                .filter(methodNode1 -> methodNode1.name.equals(name))
+                .filter(methodNode1 -> methodNode1.desc.equals(desc)).findFirst().orElse(null);
+    }
 
     public static Optional<MethodNode> findMethod(ClassNode classNode, Predicate<MethodNode> predicate) {
         return classNode.methods == null ? Optional.empty() : classNode.methods.stream()

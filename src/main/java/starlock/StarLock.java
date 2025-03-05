@@ -34,7 +34,7 @@ public class StarLock {
                 char[] str = var0.toCharArray();
                 StringBuilder decrypted = new StringBuilder();
                 for (char c : str) {
-                    decrypted.append((char) ((int) c ^ key));
+                    decrypted.append((char) ((int) c ^ key ^ var2));
                 }
                 return decrypted.toString();
             }

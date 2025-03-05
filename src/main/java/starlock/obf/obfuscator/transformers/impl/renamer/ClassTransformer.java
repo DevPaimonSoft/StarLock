@@ -12,7 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClassTransformer extends RenamerTransformer {
 
-    public void obfuscate(Obfuscator obfuscator) {
+    public void obfuscate(ClassNode ignored) {
+        Obfuscator obfuscator = new Obfuscator();
         List<String> names = getConfig().getStringList("Renamer.Path");
         AtomicInteger ipp = new AtomicInteger();
         CustomRemapper remapper = new CustomRemapper();
@@ -61,10 +62,6 @@ public class ClassTransformer extends RenamerTransformer {
     }
 
     public static String getPackage(String classPath) {
-        int lastSlashIndex = classPath.lastIndexOf('/');
-        if (lastSlashIndex == -1) {
-            return "";
-        }
-        return classPath.substring(0, lastSlashIndex);
+        return CustomRemapper.getPackage(classPath);
     }
 }

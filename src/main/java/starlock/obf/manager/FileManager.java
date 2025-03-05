@@ -7,6 +7,8 @@ import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import starlock.obf.Main;
+import starlock.obf.obfuscator.transformers.NumberTransformer;
+import starlock.obf.obfuscator.transformers.StringTransformer;
 import starlock.obf.obfuscator.transformers.impl.number.HeavyNumberTransformer;
 import starlock.obf.obfuscator.transformers.impl.string.HeavyStringTransformer;
 import starlock.obf.utils.ASMHelper;
@@ -72,7 +74,12 @@ public class FileManager extends Utils {
                             var name = zipEntry.getName();
                             var buffer = is.readAllBytes();
 
-                            if (isClassFile(name, buffer)) CLASSES.put(name,new ClassWrapper(buffer));
+                            if (isClassFile(name, buffer)) {
+                                ClassWrapper classWrapper = new ClassWrapper(buffer);
+                                if(!ASMHelper.isAccess(classWrapper.getClassNode().access, Opcodes.ACC_INTERFACE))
+                                    CLASSES.put(name, new ClassWrapper(buffer));
+                                else FILES.put(name, buffer);
+                            }
                             else FILES.put(name, buffer);
 
                             //if(name.endsWith(".class")){
@@ -132,18 +139,15 @@ public class FileManager extends Utils {
 
 
             //TODO: save lib and replace values
-            InputStream stream = Main.class.getResourceAsStream("../StarLock.class");
-            ClassNode classNode = new ClassNode(Opcodes.ASM9);
-            ClassReader reader = new ClassReader(stream);
-            reader.accept(classNode, Opcodes.ASM9);
+            ClassNode classNode = getSLClassNode();
 
             classNode.methods.forEach(methodNode -> {
                 Arrays.stream(methodNode.instructions.toArray())
                         .forEach(insn -> {
                             if (ASMHelper.isInteger(insn) && ASMHelper.getInteger(insn) == 1122331334) {
-                                methodNode.instructions.set(insn, new LdcInsnNode(HeavyNumberTransformer.key));
+                                methodNode.instructions.set(insn, new LdcInsnNode(NumberTransformer.key));
                             } else if (ASMHelper.isInteger(insn) && ASMHelper.getInteger(insn) == 345345777) {
-                                methodNode.instructions.set(insn, new LdcInsnNode(HeavyStringTransformer.key2));
+                                methodNode.instructions.set(insn, new LdcInsnNode(StringTransformer.key));
                             } else if (ASMHelper.isString(insn) && ASMHelper.getString(insn).equals("SPLITSTRING")) {
                                 methodNode.instructions.set(insn, new LdcInsnNode("nullptr"));
                             }
@@ -163,6 +167,17 @@ public class FileManager extends Utils {
             System.gc();
         } catch (IOException e) {
             // e.printStackTrace();
+        }
+    }
+    public static ClassNode getSLClassNode() {
+        try {
+            InputStream stream = Main.class.getResourceAsStream("../StarLock.class");
+            ClassNode classNode = new ClassNode(Opcodes.ASM9);
+            ClassReader reader = new ClassReader(stream);
+            reader.accept(classNode, Opcodes.ASM9);
+            return classNode;
+        }catch (IOException e){
+            throw new RuntimeException(e);
         }
     }
 }

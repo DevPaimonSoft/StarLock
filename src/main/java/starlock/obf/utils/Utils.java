@@ -61,28 +61,22 @@ public class Utils extends ConfigManager {
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < repeat; i++) {
             s.append(IntStream.range(0, length)
-                    .mapToObj(ii -> Character.toString(Dict.charAt((new Random()).nextInt(1999999999) % Dict.length())))
+                    .mapToObj(ii -> Character.toString(Dict.charAt((new Random()).nextInt(Integer.MAX_VALUE) % Dict.length())))
                     .collect(Collectors.joining()));
         }
         return new String(s.toString().getBytes(StandardCharsets.UTF_8));
     }
     public static String getRandomName(int length, int repeat) {
+        length = new Random().nextInt(length);
         String dict;
-        if (DictMode.equals("Split")) dict = DictonaryManager.INVISIBLE;
+        if (DictMode.equals("Split") || DictMode.equals("Invisible")) dict = DictonaryManager.IiIiI;
         else dict = Dict;
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < repeat; i++) {
             s.append(IntStream.range(0, length)
-                    .mapToObj(ii -> Character.toString(dict.charAt((new Random()).nextInt(1999999999) % dict.length())))
+                    .mapToObj(ii -> Character.toString(dict.charAt((new Random()).nextInt(Integer.MAX_VALUE) % dict.length())))
                     .collect(Collectors.joining()));
         }
-        return new String(s.toString().getBytes(StandardCharsets.UTF_8));
-    }
-    public static String getRandomString(int length) {
-        StringBuilder s = new StringBuilder();
-        s.append(IntStream.range(0, length)
-                .mapToObj(ii -> Character.toString(Dict.charAt((new Random()).nextInt(1999999999) % Dict.length())))
-                .collect(Collectors.joining()));
         return new String(s.toString().getBytes(StandardCharsets.UTF_8));
     }
     public static String getUnicodeString(int length) {

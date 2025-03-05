@@ -28,6 +28,7 @@ InvokeDynamic:
 NumberObfuscation:
   Enabled: true
   Mode: Heavy
+  Random: false
   LineNumbers:
     Enabled: true
     Remove: true
@@ -55,7 +56,7 @@ Miscellaneous:
 
 Renamer:
   Enabled: false
-  Repackage: "su4ka" # Set %false% if u dont wont for repackage
+  Repackage: "%false%" # Set %false% if u dont wont for repackage
   Path:
     - "ru.youngsmoke.*"
   AdaptResources:
@@ -93,6 +94,7 @@ Watermark:
     - "Protected: StarLock LTD"
 
 Settings:
-  Dictionary: "Split"
+  StarLockClass: true
+  Dictionary: IiIiI
   Path: # path to obfuscate, set * for obfuscate all sources
     - "ru.youngsmoke.*"

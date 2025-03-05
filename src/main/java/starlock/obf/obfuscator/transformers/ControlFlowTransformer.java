@@ -1,5 +1,6 @@
 package starlock.obf.obfuscator.transformers;
 
+import org.objectweb.asm.tree.ClassNode;
 import starlock.obf.obfuscator.Obfuscator;
 import starlock.obf.obfuscator.Transformer;
 import starlock.obf.obfuscator.transformers.impl.flow.LightControlFlowTransformer;
@@ -7,11 +8,11 @@ import starlock.obf.obfuscator.transformers.impl.flow.NormalControlFlowTransform
 
 public class ControlFlowTransformer extends Transformer {
     @Override
-    public void transform(Obfuscator obfuscator) {
+    public void transform(ClassNode classnode) {
         switch (getConfig().getString("FlowObfuscation.Mode")){
-            case "Normal" -> new LightControlFlowTransformer().obfuscate(obfuscator);
-            case "Medium" -> new NormalControlFlowTransformer().obfuscate(obfuscator);
-            case "Heavy" -> new NormalControlFlowTransformer().obfuscate(obfuscator);
+            case "Normal" -> new NormalControlFlowTransformer().obfuscate(classnode);
+            case "Medium" -> new NormalControlFlowTransformer().obfuscate(classnode);
+            case "Heavy" -> new NormalControlFlowTransformer().obfuscate(classnode);
             default -> throw new IllegalArgumentException();
         }
     }

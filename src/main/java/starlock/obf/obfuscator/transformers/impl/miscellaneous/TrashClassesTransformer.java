@@ -40,7 +40,8 @@ public class TrashClassesTransformer extends MiscellaneousTransformer {
         DESCRIPTORS.add("D");
         DESCRIPTORS.add("V");
     }
-    public void init(Obfuscator obfuscator) {
+    public void init(ClassNode ignored) {
+        Obfuscator obfuscator = new Obfuscator();
         boolean check = LIBS == null;
         List classNames = check ?  new ArrayList<>() : LIBS;
         int ii = new Random().nextInt();
@@ -48,7 +49,7 @@ public class TrashClassesTransformer extends MiscellaneousTransformer {
 
         if(check){
             for(int i = 0; i < l % 20; i++){
-                classNames.add(randomString(new Random().nextInt(256)));
+                classNames.add(getRandomName(new Random().nextInt(256),1));
             }
         }
 

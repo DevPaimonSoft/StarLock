@@ -9,31 +9,30 @@ import java.util.*;
 
 public class Obfuscator extends ASMHelper {
     public void run() {
-        List<Transformer> transformers = new ArrayList<>();
-        transformers.add(new StringTransformer());
-        transformers.add(new NumberTransformer());
-
-        //transformers.add(new InvokeDynamicTransformer()); //TODO: In future update
-
-        transformers.add(new ControlFlowTransformer());
-        transformers.add(new RenamerTransformer());
-        transformers.add(new AccessTransformer());
-        transformers.add(new WaterMarkTransformer());
-        transformers.add(new MiscellaneousTransformer());
-        transformers.add(new PoolTransformer());
-
-        transformers.forEach(transformer -> {
-            LOGGER.info("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
-            LOGGER.info("      {} running...", transformer.name());
-            transformer.transform(this);
-            LOGGER.info("      {} finished!", transformer.name());
-            LOGGER.info("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = =\n");
+        List<Transformer> transformers = Arrays.asList(
+                new StringTransformer(),
+                new NumberTransformer(),
+                ////new InvokeDynamicTransformer(), //TODO: In Future Update >:)
+                new ControlFlowTransformer(),
+                new RenamerTransformer(),
+                new AccessTransformer(),
+                new WaterMarkTransformer(),
+                new MiscellaneousTransformer(),
+                new PoolTransformer()
+        );
+        LOGGER.info("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = =");
+        LOGGER.info("      Obfuscation starting...\n");
+        getClasses().forEach(classNode -> {
+            LOGGER.info("      Transforming {}", classNode.name);
+            transformers.forEach(transformer -> transformer.transform(classNode));
         });
+        LOGGER.info("\n      Obfuscation finished!");
+        LOGGER.info("= = = = = = = = = = = = = = = = = = = = = = = = = = = = = =\n");
     }
 
     public List<ClassNode> getClasses(){
         List<ClassNode> toReturn = new ArrayList<>();
-        CLASSES.forEach((a, c) -> toReturn.add(c.getClassNode()));
+        CLASSES.forEach((name, c) -> toReturn.add(c.getClassNode()));
         return toReturn;
     }
     public byte[] getFile(String forGet){

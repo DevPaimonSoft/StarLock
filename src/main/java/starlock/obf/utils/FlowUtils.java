@@ -11,11 +11,12 @@ public class FlowUtils extends ASMHelper implements Opcodes {
 
         int randomValue1 = new Random().nextInt();
         int randomValue2 = new Random().nextInt();
+        int randomValue3 = new Random().nextInt();
 
         fakeJump.add(new LdcInsnNode(randomValue1));
         fakeJump.add(new LdcInsnNode(randomValue2));
         fakeJump.add(new InsnNode(ISUB));
-        fakeJump.add(new InsnNode(ICONST_0));
+        fakeJump.add(new InsnNode( ((randomValue1 - randomValue2) != randomValue3) ? randomValue3 : ~randomValue3 ));
         fakeJump.add(new InsnNode(IADD));
         fakeJump.add(new JumpInsnNode(IFGE, originalJump.label));
         fakeJump.add(new TypeInsnNode(NEW, "java/lang/RuntimeException"));
@@ -61,11 +62,16 @@ public class FlowUtils extends ASMHelper implements Opcodes {
             default -> throw new IllegalStateException(String.format("Unable to reverse jump opcode: %d", opcode));
         };
     }
-    public static InsnList getSwitchBlockInt(final long key, final long decKey, final FieldNode field, String owner) {
+    public static InsnList getSwitchBlockIntOld(final int key, final int decKey, final FieldNode field, String owner) {
         final InsnList insnList = new InsnList();
         final LabelNode L0 = new LabelNode(),L1 = new LabelNode(),L2 = new LabelNode(),L3 = new LabelNode(),L4 = new LabelNode();
         LabelNode[] labels = {L0,L1,L2};
-        int[] keys = {new Random().nextInt(), new Random().nextInt(), (int)key};
+        int[] keys = {new Random().nextInt(), new Random().nextInt(), key};
+        while (keys[0] == keys[1] || keys[0] == key || keys[1] == key) {
+            keys[0] = new Random().nextInt();
+            keys[1] = new Random().nextInt();
+        }
+
         final LabelNode defLabel = new LabelNode();
 
 
@@ -76,29 +82,78 @@ public class FlowUtils extends ASMHelper implements Opcodes {
 
         insnList.add(L0);
         insnList.add(new FieldInsnNode(GETSTATIC,owner, field.name, field.desc));;
-        insnList.add(new LdcInsnNode(new Random().nextLong()));
-        insnList.add(new InsnNode(LXOR));
+        insnList.add(new LdcInsnNode(new Random().nextInt()));
+        insnList.add(new InsnNode(IXOR));
         insnList.add(new FieldInsnNode(PUTSTATIC,owner, field.name, field.desc));
         insnList.add(new JumpInsnNode(GOTO, defLabel));
 
         insnList.add(L1);
         insnList.add(new FieldInsnNode(GETSTATIC,owner, field.name, field.desc));
-        insnList.add(new LdcInsnNode(new Random().nextLong()));
-        insnList.add(new InsnNode(LXOR));
+        insnList.add(new LdcInsnNode(new Random().nextInt()));
+        insnList.add(new InsnNode(IXOR));
         insnList.add(new FieldInsnNode(PUTSTATIC,owner, field.name, field.desc));
         insnList.add(new JumpInsnNode(GOTO, defLabel));
 
         insnList.add(L2);
         insnList.add(new FieldInsnNode(GETSTATIC,owner, field.name, field.desc));
         insnList.add(new LdcInsnNode(decKey));
-        insnList.add(new InsnNode(LXOR));
+        insnList.add(new InsnNode(IXOR));
         insnList.add(new FieldInsnNode(PUTSTATIC,owner, field.name, field.desc));
         insnList.add(new JumpInsnNode(GOTO, defLabel));
 
         insnList.add(L3);
-        insnList.add(new LdcInsnNode(new Random().nextLong()));
-        insnList.add(new LdcInsnNode(new Random().nextLong()));
-        insnList.add(new InsnNode(LXOR));
+        insnList.add(new LdcInsnNode(new Random().nextInt()));
+        insnList.add(new LdcInsnNode(new Random().nextInt()));
+        insnList.add(new InsnNode(IXOR));
+        insnList.add(new FieldInsnNode(PUTSTATIC,owner, field.name, field.desc));
+        insnList.add(new JumpInsnNode(GOTO, defLabel));
+
+        insnList.add(defLabel);
+        return insnList;
+    }
+    public static InsnList getSwitchBlockInt(final int key, final int decKey, final FieldNode field, String owner, int var) {
+        final InsnList insnList = new InsnList();
+        final LabelNode L0 = new LabelNode(),L1 = new LabelNode(),L2 = new LabelNode(),L3 = new LabelNode(),L4 = new LabelNode();
+        LabelNode[] labels = {L0,L1,L2};
+        int[] keys = {new Random().nextInt(), new Random().nextInt(), key};
+        while (keys[0] == keys[1] || keys[0] == key || keys[1] == key) {
+            keys[0] = new Random().nextInt();
+            keys[1] = new Random().nextInt();
+        }
+
+        final LabelNode defLabel = new LabelNode();
+
+
+
+        insnList.add(L4);
+        insnList.add(new FieldInsnNode(GETSTATIC,owner, field.name, field.desc));
+        insnList.add(new LookupSwitchInsnNode(L3, keys, labels));
+
+        insnList.add(L0);
+        insnList.add(new FieldInsnNode(GETSTATIC,owner, field.name, field.desc));;
+        insnList.add(new LdcInsnNode(new Random().nextInt()));
+        insnList.add(new InsnNode(IXOR));
+        insnList.add(new FieldInsnNode(PUTSTATIC,owner, field.name, field.desc));
+        insnList.add(new JumpInsnNode(GOTO, defLabel));
+
+        insnList.add(L1);
+        insnList.add(new FieldInsnNode(GETSTATIC,owner, field.name, field.desc));
+        insnList.add(new LdcInsnNode(new Random().nextInt()));
+        insnList.add(new InsnNode(IXOR));
+        insnList.add(new FieldInsnNode(PUTSTATIC,owner, field.name, field.desc));
+        insnList.add(new JumpInsnNode(GOTO, defLabel));
+
+        insnList.add(L2);
+        insnList.add(new FieldInsnNode(GETSTATIC,owner, field.name, field.desc));
+        insnList.add(new LdcInsnNode(decKey));
+        insnList.add(new InsnNode(IXOR));
+        insnList.add(new FieldInsnNode(PUTSTATIC,owner, field.name, field.desc));
+        insnList.add(new JumpInsnNode(GOTO, defLabel));
+
+        insnList.add(L3);
+        insnList.add(new LdcInsnNode(new Random().nextInt()));
+        insnList.add(new LdcInsnNode(new Random().nextInt()));
+        insnList.add(new InsnNode(IXOR));
         insnList.add(new FieldInsnNode(PUTSTATIC,owner, field.name, field.desc));
         insnList.add(new JumpInsnNode(GOTO, defLabel));
 
