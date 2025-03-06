@@ -82,6 +82,7 @@ Shrinker:
 Watermark:
   Enabled: true
   META-INF: false
+  UnsafeInvokeDynamic: false # you MUST pass -noverify.
   Messages:
     - "\n<\\ StarLock: New Modern Protection."
     - " || Web: github.com/DevPaimonSoft/StarLock"
